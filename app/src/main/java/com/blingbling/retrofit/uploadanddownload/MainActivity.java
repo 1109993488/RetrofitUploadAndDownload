@@ -22,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String TAG = MainActivity.class.getSimpleName();
 
     File file = new File(Environment.getExternalStorageDirectory(), "zzz/1.jpg");
-    File file2 = new File(Environment.getExternalStorageDirectory(), "zzz/2.jpg");
+    File file2 = new File(Environment.getExternalStorageDirectory(), "zzz/1.pdf");
 
     private ProgressBar mProgressBar;
     @Override

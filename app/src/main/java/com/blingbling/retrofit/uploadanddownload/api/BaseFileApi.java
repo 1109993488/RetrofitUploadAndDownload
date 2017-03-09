@@ -12,6 +12,8 @@ import java.util.concurrent.TimeUnit;
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
+import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.converter.scalars.ScalarsConverterFactory;
 
 /**
  * Created by BlingBling on 2017/3/7.
@@ -36,6 +38,8 @@ public abstract class BaseFileApi extends BaseApi implements ProgressListener {
     @Override
     protected Retrofit.Builder onCreateRetrofit() {
         Retrofit.Builder builder = new Retrofit.Builder()
+                .addConverterFactory(ScalarsConverterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create(onCreateGson().create()))
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create());
         return builder;
     }
