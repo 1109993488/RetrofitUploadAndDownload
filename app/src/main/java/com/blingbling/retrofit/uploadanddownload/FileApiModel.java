@@ -1,7 +1,8 @@
 package com.blingbling.retrofit.uploadanddownload;
 
+import com.blingbling.retrofit.uploadanddownload.api.CFileApi;
 import com.blingbling.retrofit.uploadanddownload.api.MultipartUtil;
-import com.blingbling.retrofit.uploadanddownload.api.intercept.ProgressListener;
+import com.blingbling.retrofit.uploadanddownload.api.progress.ApiProgressListener;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -16,31 +17,29 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
-import static com.blingbling.retrofit.uploadanddownload.FileApi.service;
-
 /**
  * Created by BlingBling on 2017/3/7.
  */
 
 public class FileApiModel {
 
-    public static Observable<String> uploadPhoto1(File file, ProgressListener listener) {
-        return service(true, listener).uploadPhoto(MultipartUtil.getMultipart("file", file))
+    public static Observable<String> uploadPhoto1(File file, ApiProgressListener listener) {
+        return FileApi.service(CFileApi.TYPE_UPLOAD, listener).uploadPhoto(MultipartUtil.getMultipart("file", file))
                 .compose(FileApiModel.<String>io());
     }
 
-    public static Observable<String> uploadPhoto2(Map<String, String> options, File file, ProgressListener listener) {
-        return service(true, listener).uploadPhoto(options, MultipartUtil.getMultipart("file", file))
+    public static Observable<String> uploadPhoto2(Map<String, String> options, File file, ApiProgressListener listener) {
+        return FileApi.service(CFileApi.TYPE_UPLOAD, listener).uploadPhoto(options, MultipartUtil.getMultipart("file", file))
                 .compose(FileApiModel.<String>io());
     }
 
-    public static Observable<String> uploadPhoto3(Map<String, String> options, List<File> files, ProgressListener listener) {
-        return FileApi.service(true, listener).uploadPhoto(MultipartUtil.getRequestBodyMap(options, "file", files))
+    public static Observable<String> uploadPhoto3(Map<String, String> options, List<File> files, ApiProgressListener listener) {
+        return FileApi.service(CFileApi.TYPE_UPLOAD, listener).uploadPhoto(MultipartUtil.getRequestBodyMap(options, "file", files))
                 .compose(FileApiModel.<String>io());
     }
 
-    public static Observable<File> download(String url, final File saveFile, ProgressListener listener) {
-        return service(false, listener).download(url)
+    public static Observable<File> download(String url, final File saveFile, ApiProgressListener listener) {
+        return FileApi.service(CFileApi.TYPE_DOWNLOAD, listener).download(url)
                 .flatMap(saveFileFunc1(saveFile))
                 .compose(FileApiModel.<File>io());
     }

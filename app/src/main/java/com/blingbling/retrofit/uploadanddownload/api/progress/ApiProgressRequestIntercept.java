@@ -1,4 +1,4 @@
-package com.blingbling.retrofit.uploadanddownload.api.intercept;
+package com.blingbling.retrofit.uploadanddownload.api.progress;
 
 import java.io.IOException;
 
@@ -17,11 +17,11 @@ import okio.Sink;
  * Created by BlingBling on 2017/3/7.
  */
 
-public class ProgressRequestIntercept implements Interceptor {
+public class ApiProgressRequestIntercept implements Interceptor {
 
-    private ProgressListener mListener;
+    private ApiProgressListener mListener;
 
-    public ProgressRequestIntercept(ProgressListener listener) {
+    public ApiProgressRequestIntercept(ApiProgressListener listener) {
         mListener = listener;
     }
 
@@ -39,19 +39,19 @@ public class ProgressRequestIntercept implements Interceptor {
         //实际的待包装请求体
         private RequestBody requestBody;
         //进度回调接口
-        private ProgressListener progressListener;
+        private ApiProgressListener apiProgressListener;
         //包装完成的BufferedSink
         private BufferedSink bufferedSink;
 
         /**
          * 构造函数，赋值
          *
-         * @param requestBody      待包装的请求体
-         * @param progressListener 回调接口
+         * @param requestBody         待包装的请求体
+         * @param apiProgressListener 回调接口
          */
-        public ProgressRequestBody(RequestBody requestBody, ProgressListener progressListener) {
+        public ProgressRequestBody(RequestBody requestBody, ApiProgressListener apiProgressListener) {
             this.requestBody = requestBody;
-            this.progressListener = progressListener;
+            this.apiProgressListener = apiProgressListener;
         }
 
         /**
@@ -119,8 +119,8 @@ public class ProgressRequestIntercept implements Interceptor {
                     //增加当前写入的字节数
                     bytesWritten += byteCount;
                     //回调
-                    if (progressListener != null) {
-                        progressListener.onProgress(bytesWritten, contentLength, bytesWritten == contentLength);
+                    if (apiProgressListener != null) {
+                        apiProgressListener.onProgress(bytesWritten, contentLength, bytesWritten == contentLength);
                     }
                 }
             };

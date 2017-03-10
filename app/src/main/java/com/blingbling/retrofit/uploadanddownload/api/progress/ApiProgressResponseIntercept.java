@@ -1,4 +1,4 @@
-package com.blingbling.retrofit.uploadanddownload.api.intercept;
+package com.blingbling.retrofit.uploadanddownload.api.progress;
 
 import java.io.IOException;
 
@@ -16,11 +16,11 @@ import okio.Source;
  * Created by BlingBling on 2017/3/7.
  */
 
-public class ProgressResponseIntercept implements Interceptor {
+public class ApiProgressResponseIntercept implements Interceptor {
 
-    private ProgressListener mListener;
+    private ApiProgressListener mListener;
 
-    public ProgressResponseIntercept(ProgressListener listener) {
+    public ApiProgressResponseIntercept(ApiProgressListener listener) {
         mListener = listener;
     }
 
@@ -39,19 +39,19 @@ public class ProgressResponseIntercept implements Interceptor {
         //实际的待包装响应体
         private final ResponseBody responseBody;
         //进度回调接口
-        private final ProgressListener progressListener;
+        private final ApiProgressListener apiProgressListener;
         //包装完成的BufferedSource
         private BufferedSource bufferedSource;
 
         /**
          * 构造函数，赋值
          *
-         * @param responseBody     待包装的响应体
-         * @param progressListener 回调接口
+         * @param responseBody        待包装的响应体
+         * @param apiProgressListener 回调接口
          */
-        public ProgressResponseBody(ResponseBody responseBody, ProgressListener progressListener) {
+        public ProgressResponseBody(ResponseBody responseBody, ApiProgressListener apiProgressListener) {
             this.responseBody = responseBody;
-            this.progressListener = progressListener;
+            this.apiProgressListener = apiProgressListener;
         }
 
 
@@ -100,17 +100,23 @@ public class ProgressResponseIntercept implements Interceptor {
             return new ForwardingSource(source) {
                 //当前读取字节数
                 long totalBytesRead = 0L;
+                //总字节长度，避免多次调用contentLength()方法
+                long contentLength = 0L;
 
                 @Override
                 public long read(Buffer sink, long byteCount) throws IOException {
-                    long bytesRead = super.read(sink, byteCount);
-                    //增加当前读取的字节数，如果读取完成了bytesRead会返回-1
-                    totalBytesRead += bytesRead != -1 ? bytesRead : 0;
-                    //回调，如果contentLength()不知道长度，会返回-1
-                    if (progressListener != null) {
-                        progressListener.onProgress(totalBytesRead, responseBody.contentLength(), bytesRead == -1);
+                    long byteRead = super.read(sink, byteCount);
+                    if (contentLength == 0) {
+                        //获得contentLength的值，后续不再调用
+                        contentLength = contentLength();
                     }
-                    return bytesRead;
+                    //增加当前读取的字节数，如果读取完成了bytesRead会返回-1
+                    totalBytesRead += byteRead != -1 ? byteRead : 0;
+                    //回调，如果contentLength()不知道长度，会返回-1
+                    if (apiProgressListener != null) {
+                        apiProgressListener.onProgress(totalBytesRead, contentLength, byteRead == -1);
+                    }
+                    return byteRead;
                 }
             };
         }

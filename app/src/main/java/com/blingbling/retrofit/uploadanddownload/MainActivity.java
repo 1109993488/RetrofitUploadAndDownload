@@ -7,7 +7,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 
-import com.blingbling.retrofit.uploadanddownload.api.intercept.ProgressListener;
+import com.blingbling.retrofit.uploadanddownload.api.progress.ApiProgressListener;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -54,13 +54,14 @@ public class MainActivity extends AppCompatActivity {
         };
     }
 
-    public ProgressListener getProgressListener() {
-        return new ProgressListener() {
+    public ApiProgressListener getProgressListener() {
+        return new ApiProgressListener() {
             @Override
             public void onProgress(long currentSize, long totalSize, boolean done) {
-                Log.e(TAG, "onProgress--" + currentSize + "  " + totalSize + "  " + done);
+                int progress = (int) (100D * currentSize / totalSize);
+                Log.e(TAG, "onProgress--" + progress + "  " + done);
                 mProgressBar.setMax(100);
-                mProgressBar.setProgress((int) ((100D * currentSize) / totalSize));
+                mProgressBar.setProgress(progress);
             }
         };
     }

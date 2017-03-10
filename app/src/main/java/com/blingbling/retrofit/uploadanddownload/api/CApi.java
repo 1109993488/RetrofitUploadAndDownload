@@ -16,13 +16,21 @@ import retrofit2.converter.scalars.ScalarsConverterFactory;
 /**
  * Created by BlingBling on 17/2/7.
  */
-public abstract class BaseApi {
+public abstract class CApi {
 
     //构造方法私有
-    protected BaseApi() {
+    protected CApi() {
     }
 
-    protected final <T> T api(String baseUrl, Class<T> cls) {
+    /**
+     * 普通请求可以共用一个service，如果上传或下载需要重新创建新的service
+     *
+     * @param baseUrl
+     * @param cls
+     * @param <T>
+     * @return
+     */
+    protected final <T> T createService(String baseUrl, Class<T> cls) {
         final Retrofit.Builder retrofitBuilder = onCreateRetrofit();
         final OkHttpClient.Builder okHttpClientBuilder = onCreateOkHttpClient();
 
