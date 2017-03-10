@@ -1,6 +1,7 @@
 package com.blingbling.retrofit.uploadanddownload.api;
 
 import com.blingbling.retrofit.uploadanddownload.BuildConfig;
+import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import java.util.concurrent.TimeUnit;
@@ -22,38 +23,43 @@ public abstract class BaseApi {
     }
 
     protected final <T> T api(String baseUrl, Class<T> cls) {
-        final Retrofit.Builder builder = onCreateRetrofit();
-        builder.baseUrl(baseUrl);
-        builder.client(onCreateOkHttpClient().build());
-        final T service = builder.build().create(cls);
-        return service;
+        final Retrofit.Builder retrofitBuilder = onCreateRetrofit();
+        final OkHttpClient.Builder okHttpClientBuilder = onCreateOkHttpClient();
+
+        onCreateLoggingInterceptor(okHttpClientBuilder);
+
+        retrofitBuilder.baseUrl(baseUrl)
+                .client(okHttpClientBuilder.build());
+
+        return retrofitBuilder.build().create(cls);
     }
 
     protected Retrofit.Builder onCreateRetrofit() {
-        Retrofit.Builder builder = new Retrofit.Builder()
-                .addConverterFactory(ScalarsConverterFactory.create())
-                .addConverterFactory(GsonConverterFactory.create(onCreateGson().create()))
+        final Retrofit.Builder builder = new Retrofit.Builder();
+        builder.addConverterFactory(ScalarsConverterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create(onCreateGson()))
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create());
         return builder;
     }
 
     protected OkHttpClient.Builder onCreateOkHttpClient() {
-        OkHttpClient.Builder builder = new OkHttpClient.Builder();
-        builder.connectTimeout(10, TimeUnit.SECONDS);
-        builder.readTimeout(10, TimeUnit.SECONDS);
-        builder.writeTimeout(10, TimeUnit.SECONDS);
-
-        if (BuildConfig.DEBUG) {
-            //打印网络请求log日志
-            HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
-            interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-            builder.addInterceptor(interceptor);
-        }
+        final OkHttpClient.Builder builder = new OkHttpClient.Builder();
+        builder.connectTimeout(10, TimeUnit.SECONDS)
+                .readTimeout(10, TimeUnit.SECONDS)
+                .writeTimeout(10, TimeUnit.SECONDS);
         return builder;
     }
 
-    protected GsonBuilder onCreateGson() {
-        return new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").serializeNulls();
+    protected Gson onCreateGson() {
+        return new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").serializeNulls().create();
     }
 
+    protected void onCreateLoggingInterceptor(OkHttpClient.Builder builder) {
+        if (BuildConfig.DEBUG) {
+            //打印网络请求log日志
+            final HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
+            interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+            builder.addInterceptor(interceptor);
+        }
+    }
 }

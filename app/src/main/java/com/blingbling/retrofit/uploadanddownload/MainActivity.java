@@ -22,14 +22,15 @@ public class MainActivity extends AppCompatActivity {
     public static final String TAG = MainActivity.class.getSimpleName();
 
     File file = new File(Environment.getExternalStorageDirectory(), "zzz/1.jpg");
-    File file2 = new File(Environment.getExternalStorageDirectory(), "zzz/1.pdf");
+    File file2 = new File(Environment.getExternalStorageDirectory(), "zzz/2.jpg");
 
     private ProgressBar mProgressBar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mProgressBar= (ProgressBar) findViewById(R.id.progressBar);
+        mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
     }
 
     public Subscriber<String> getSubscriber() {
@@ -59,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
             public void onProgress(long currentSize, long totalSize, boolean done) {
                 Log.e(TAG, "onProgress--" + currentSize + "  " + totalSize + "  " + done);
                 mProgressBar.setMax(100);
-                mProgressBar.setProgress((int) ((100.0*currentSize)/totalSize));
+                mProgressBar.setProgress((int) ((100D * currentSize) / totalSize));
             }
         };
     }
@@ -113,5 +114,10 @@ public class MainActivity extends AppCompatActivity {
                 Log.e(TAG, "onNext--->" + file);
             }
         });
+        List<String> strings = gett();
+    }
+
+    public <T> List<T> gett() {
+        return null;
     }
 }

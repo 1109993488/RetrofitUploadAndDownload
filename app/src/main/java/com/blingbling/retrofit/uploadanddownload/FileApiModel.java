@@ -16,6 +16,8 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
+import static com.blingbling.retrofit.uploadanddownload.FileApi.service;
+
 /**
  * Created by BlingBling on 2017/3/7.
  */
@@ -23,12 +25,12 @@ import rx.schedulers.Schedulers;
 public class FileApiModel {
 
     public static Observable<String> uploadPhoto1(File file, ProgressListener listener) {
-        return FileApi.service(true, listener).uploadPhoto(MultipartUtil.getMultipart("file", file))
+        return service(true, listener).uploadPhoto(MultipartUtil.getMultipart("file", file))
                 .compose(FileApiModel.<String>io());
     }
 
     public static Observable<String> uploadPhoto2(Map<String, String> options, File file, ProgressListener listener) {
-        return FileApi.service(true, listener).uploadPhoto(options, MultipartUtil.getMultipart("file", file))
+        return service(true, listener).uploadPhoto(options, MultipartUtil.getMultipart("file", file))
                 .compose(FileApiModel.<String>io());
     }
 
@@ -38,7 +40,7 @@ public class FileApiModel {
     }
 
     public static Observable<File> download(String url, final File saveFile, ProgressListener listener) {
-        return FileApi.service(false, listener).download(url)
+        return service(false, listener).download(url)
                 .flatMap(saveFileFunc1(saveFile))
                 .compose(FileApiModel.<File>io());
     }

@@ -3,6 +3,7 @@ package com.blingbling.retrofit.uploadanddownload.api;
 import android.os.Handler;
 import android.os.Looper;
 
+import com.blingbling.retrofit.uploadanddownload.BuildConfig;
 import com.blingbling.retrofit.uploadanddownload.api.intercept.ProgressListener;
 import com.blingbling.retrofit.uploadanddownload.api.intercept.ProgressRequestIntercept;
 import com.blingbling.retrofit.uploadanddownload.api.intercept.ProgressResponseIntercept;
@@ -10,10 +11,7 @@ import com.blingbling.retrofit.uploadanddownload.api.intercept.ProgressResponseI
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
-import retrofit2.Retrofit;
-import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
-import retrofit2.converter.gson.GsonConverterFactory;
-import retrofit2.converter.scalars.ScalarsConverterFactory;
+import okhttp3.logging.HttpLoggingInterceptor;
 
 /**
  * Created by BlingBling on 2017/3/7.
@@ -36,17 +34,8 @@ public abstract class BaseFileApi extends BaseApi implements ProgressListener {
     }
 
     @Override
-    protected Retrofit.Builder onCreateRetrofit() {
-        Retrofit.Builder builder = new Retrofit.Builder()
-                .addConverterFactory(ScalarsConverterFactory.create())
-                .addConverterFactory(GsonConverterFactory.create(onCreateGson().create()))
-                .addCallAdapterFactory(RxJavaCallAdapterFactory.create());
-        return builder;
-    }
-
-    @Override
     protected OkHttpClient.Builder onCreateOkHttpClient() {
-        OkHttpClient.Builder builder = super.onCreateOkHttpClient();
+        final OkHttpClient.Builder builder = new OkHttpClient.Builder();
         builder.connectTimeout(10, TimeUnit.SECONDS);
         builder.readTimeout(60, TimeUnit.SECONDS);
         builder.writeTimeout(60, TimeUnit.SECONDS);
@@ -56,6 +45,16 @@ public abstract class BaseFileApi extends BaseApi implements ProgressListener {
             builder.addInterceptor(new ProgressResponseIntercept(this));
         }
         return builder;
+    }
+
+    @Override
+    protected void onCreateLoggingInterceptor(OkHttpClient.Builder builder) {
+        if (BuildConfig.DEBUG) {
+            //打印网络请求log日志
+            final HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
+            interceptor.setLevel(HttpLoggingInterceptor.Level.HEADERS);
+            builder.addInterceptor(interceptor);
+        }
     }
 
     @Override
